@@ -10,28 +10,8 @@ slack = Slacker(os.environ.get('SLACK_TOKEN'))
 
 # helper function to convert 12-hour time to 24-hour
 def convert24(str1):
-
-    # Checking if last two elements of time
-    # is AM and first two elements are 12
-    timestr = ''
-
-    if str1[-2:] == "AM" and str1[:2] == "12":
-        timestr = "00" + str1[2:-2]
-
-    # remove the AM
-    elif str1[-2:] == "AM":
-        timestr = str1[:-2]
-
-    # Checking if last two elements of time
-    # is PM and first two elements are 12
-    elif str1[-2:] == "PM" and str1[:2] == "12":
-        timestr = str1[:-2]
-
-    else:
-        # add 12 to hours and remove PM
-        timestr = str(int(str1[:2]) + 12) + str1[2:8]
-
-    return timestr.strip()
+    date_time_string = datetime.strptime(str1, '%I:%M%p')
+    return date_time_string.strftime('%H:%M:%S')
 
 
 def perform_scrape(): 
@@ -54,7 +34,7 @@ def perform_scrape():
     local = pytz.timezone('America/Chicago')
 
     # set the cutoff time for six minutes prior 
-    cutoff = now - timedelta(minutes = 6)
+    cutoff = now - timedelta(minutes = 800)
 
     # our alert types that we alert for
     alert_types = ['14 - Cutting', '19 - Shooting', '27 - Dead Person']
@@ -69,10 +49,10 @@ def perform_scrape():
       # convert the time of the incident to 24 hour format
       calltime = convert24(call['time'])
       # add the date and time back as a complete date_time string to the call
-      call['date_time'] = calldate + 'T' + calltime + ':00.000'
+      call['date_time'] = calldate + 'T' + calltime
       
       # convert the date_time string to a date_object
-      calltime = datetime.strptime(call['date_time'], '%Y-%m-%dT%H:%M:%S.000')
+      calltime = datetime.strptime(call['date_time'], '%Y-%m-%dT%H:%M:%S')
       # convert that time to our local timezone (in case it isn't)
       local_calltime = local.localize(calltime)
       # convert the call back to utc to make our comparison 
