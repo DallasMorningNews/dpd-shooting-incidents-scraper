@@ -34,7 +34,7 @@ def perform_scrape():
     local = pytz.timezone('America/Chicago')
 
     # set the cutoff time for six minutes prior 
-    cutoff = now - timedelta(minutes = 800)
+    cutoff = now - timedelta(minutes = 6)
 
     # our alert types that we alert for
     alert_types = ['14 - Cutting', '19 - Shooting', '27 - Dead Person']
