@@ -2,15 +2,21 @@ import os
 import requests
 import pytz
 
+import sentry_sdk
+
 from datetime import datetime, timedelta
 from slacker import Slacker
+
+sentry_sdk.init("https://4977e134cc214148b24587db324e7783@o101507.ingest.sentry.io/5264608")
 
 # pull the slack token from our environment variables
 slack = Slacker(os.environ.get('SLACK_TOKEN'))
 
 # helper function to convert 12-hour time to 24-hour
 def convert24(str1):
-    date_time_string = datetime.strptime(str1, '%I:%M%p')
+    print(str1)
+    date_time_string = datetime.strptime(str1, '%H:%M:%S')
+    print(date_time_string.strftime('%H:%M:%S'))
     return date_time_string.strftime('%H:%M:%S')
 
 
@@ -46,10 +52,11 @@ def perform_scrape():
     for call in calls:
       # pluck just the date from the date property. DPD sends an entire date_time string, but the time is always zeroed out and included in a 12-hour format on the time key
       calldate = call['date'].split('T')[0]
+      
       # convert the time of the incident to 24 hour format
-      calltime = convert24(call['time'])
+      # calltime = convert24(call['time'])
       # add the date and time back as a complete date_time string to the call
-      call['date_time'] = calldate + 'T' + calltime
+      call['date_time'] = calldate + 'T' + call['time']
       
       # convert the date_time string to a date_object
       calltime = datetime.strptime(call['date_time'], '%Y-%m-%dT%H:%M:%S')
