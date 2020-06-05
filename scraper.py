@@ -67,12 +67,11 @@ def perform_scrape():
 
       # if the call happened after our cutoff time, matches our alert type, and is not already in our attachments, add it
       if utc_calltime > cutoff:
+        print(call['nature_of_call'])
         if call["nature_of_call"] in alert_types:
           if not any(d['incident_number'] == call['incident_number'] for d in attachments):
             attachments.append(call)
 
-      else: 
-        break
 
     # for each call in the attachmenrts, send a slack message
     if len(attachments) > 0:
